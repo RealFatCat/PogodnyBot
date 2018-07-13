@@ -29,14 +29,14 @@ class WeatherApi(object):
             'q': city,
             'appid': self.token,
             'units': 'metric',
+            'lang': 'ru',
         }
-
-        print(params)
         responce = requests.get(self.base_api_url, params=params)
+        weather = responce.json()['weather'][0]['description']
         temp = responce.json()['main']['temp']
         humidity = responce.json()['main']['humidity']
         wind = responce.json()['wind']['speed']
-        return temp, humidity, wind
+        return weather, temp, humidity, wind
 
 
 def run():
@@ -45,14 +45,21 @@ def run():
     tele_dispatcher = tele_updater.dispatcher
 
     def start_bot(bot, update):
-        bot.send_message(chat_id=update.message.chat_id, text="Send city name to get weather for it")
+        bot.send_message(chat_id=update.message.chat_id, text="Отправь '/city <город>' чтобы узнать погоду в нём")
     start_handler = CommandHandler('start', start_bot)
     tele_dispatcher.add_handler(start_handler)
 
     def city(bot, update, args):
-        resp = weather.get_weather(' '.join(args))
-        text = 'Temp: {}, Humidity: {}, WindSpeed: {}'.format(*resp)
+        city = 'Москва'
+        if args:
+            city = ' '.join(args)
+        try:
+            resp = weather.get_weather(city)
+            text = 'Город: {}\nОбщее: {},\nТемпература: {},\nВлажность: {},\nСкорость ветра: {}'.format(city, *resp)
+        except KeyError:
+            text = 'Could not find weather for city: {}'.format(city)
         bot.send_message(chat_id=update.message.chat_id, text=text)
+
     city_handler = CommandHandler('city', city, pass_args=True)
     tele_dispatcher.add_handler(city_handler)
 
