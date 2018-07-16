@@ -55,7 +55,7 @@ def run():
             city = ' '.join(args)
         try:
             resp = weather.get_weather(city)
-            text = 'Город: {}\nОбщее: {},\nТемпература: {},\nВлажность: {},\nСкорость ветра: {}'.format(city, *resp)
+            text = 'Город: {}\nОбщее: {};\nТемпература: {} C;\nВлажность: {}%,\nСкорость ветра: {} м/с'.format(city, *resp)
         except KeyError:
             text = 'Could not find weather for city: {}'.format(city)
         bot.send_message(chat_id=update.message.chat_id, text=text)
